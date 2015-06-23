@@ -1,9 +1,17 @@
+#!/usr/bin/env python
+
 from setuptools import setup
 
 setup(
     name='pyelong',
     version='0.0.1',
-    packages=['pyelong'],
+    packages=[
+        'pyelong',
+        'pyelong.api',
+        'pyelong.api.hotel',
+        'pyelong.api.ihotel',
+        'pyelong.api.common'
+    ],
     url='',
     license='MIT',
     author='Yangliang Li',
