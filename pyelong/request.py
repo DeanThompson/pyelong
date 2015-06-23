@@ -27,9 +27,9 @@ class Request(object):
 
         self.debug = debug
 
-    def do(self, api, params, https):
+    def do(self, api, params, https, raw=False):
         self.timestamp = str(int(time.time()))
-        self.data = self.build_data(params)
+        self.data = self.build_data(params, raw)
         scheme = 'https' if https else 'http'
         url = "%s://%s" % (scheme, self.host)
         resp = Response(requests.get(url, params=self.build_params(api)))
@@ -47,12 +47,16 @@ class Request(object):
             'format': 'json'  # 只支持 JSON
         }
 
-    def build_data(self, params):
-        return json.dumps({
-            'Version': self.version,
-            'Local': self.local,
-            'Request': params
-        })
+    def build_data(self, params, raw=False):
+        if not raw:
+            data = {
+                'Version': self.version,
+                'Local': self.local,
+                'Request': params
+            }
+        else:
+            data = params
+        return json.dumps(data, separators=(',', ':'))
 
     def signature(self):
         s = self._md5(self.data + self.app_key)

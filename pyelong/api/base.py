@@ -6,9 +6,9 @@ class ApiBase(object):
     def __init__(self, client):
         self._client = client
 
-    def _request(self, method, https=False, **kwargs):
+    def _request(self, method, https=False, raw=False, **kwargs):
         api = self._build_api(method)
-        return self._client.request.do(api, kwargs, https)
+        return self._client.request.do(api, kwargs, https, raw)
 
     def _build_api(self, method):
         class_name = self.__class__.__name__
