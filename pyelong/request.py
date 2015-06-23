@@ -38,7 +38,7 @@ class Request(object):
             'timestamp': timestamp,
             'data': data,
             'signature': self.signature(data, timestamp),
-            'format': 'json'    # 只支持 json
+            'format': 'json'  # 只支持 json
         }
         resp = Response(requests.get(url, params=params))
         self._log('request:', resp.url)
@@ -68,4 +68,4 @@ class Request(object):
             return
         prefix = '%s - pyelong -' % datetime.datetime.now()
         msg = '%s ' * len(args) % args
-        print prefix, msg
+        print prefix, msg.encode('utf-8')
