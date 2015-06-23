@@ -40,11 +40,11 @@ from pyelong import Client
 client = Client(user=user, app_key=app_key, secret_key=secret_key)
 
 # 初始化 client 时还可以传入：
-
-- host: 指定 API 的 host，在开发时最好指定测试环境的 host
-- local: 语言
-- version: API 版本，默认 1.1
-- debug: 设置为 True 在开发时会在标准输出看到请求的 URL 和返回值
+#
+# host: 指定 API 的 host，在开发时最好指定测试环境的 host
+# local: 语言
+# version: API 版本，默认 1.1
+# debug: 设置为 True 在开发时会在标准输出看到请求的 URL 和返回值
 ```
 
 ### 调用
