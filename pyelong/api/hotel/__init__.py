@@ -16,14 +16,14 @@ class Hotel(ApiBase):
         酒店列表搜索，方法名：hotel.list
         http://open.elong.com/wiki/Hotel.list
         """
-        return self._request('list', kwargs)
+        return self._request('list', **kwargs)
 
     def detail(self, **kwargs):
         """
         酒店详情搜索，方法名：hotel.detail
         http://open.elong.com/wiki/Hotel.detail
         """
-        return self._request('detail', kwargs)
+        return self._request('detail', **kwargs)
 
     @property
     def order(self):

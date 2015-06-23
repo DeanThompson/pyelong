@@ -8,6 +8,22 @@ from pyelong.api.common import Common
 
 class Client(object):
     def __init__(self, user, app_key, secret_key, **kwargs):
+        """ 初始化一个客户端对象
+        :param user: API 账号，需要在艺龙注册后得到
+        :param app_key: API 调用的身份标识，需要在艺龙注册后得到
+        :param secret_key: API 调用的密钥，用于签名，需要在艺龙注册后得到
+        :param kwargs: 可选参数：
+                    - host: 指定 API 的 host，默认是：api.elong.com/rest
+                    - version: 指定 API 版本
+                    - local: 指定语言，默认是 zh_CN
+                    - debug: 如果设置为 True，会有些信心输出，默认为 False
+
+        Usage::
+
+            >>> from pyelong import Client
+            >>> client = Client(user='', app_key='', secret_key='')
+            >>> client.hotel.list()
+        """
         self.request = Request(user, app_key, secret_key, **kwargs)
 
     @property
