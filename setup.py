@@ -17,6 +17,7 @@ setup(
     author='Yangliang Li',
     author_email='yanglianglee@gmail.com',
     description='Python SDK for Elong (http://elong.com/) rest APIs.',
+    zip_safe=False,
     install_requires=[
         'requests>=2.7.0'
     ]
