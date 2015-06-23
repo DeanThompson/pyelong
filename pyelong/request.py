@@ -28,24 +28,22 @@ class Request(object):
         self.debug = debug
 
     def do(self, api, params, https, raw=False):
-        self.timestamp = str(int(time.time()))
-        self.data = self.build_data(params, raw)
+        timestamp = str(int(time.time()))
+        data = self.build_data(params, raw)
         scheme = 'https' if https else 'http'
         url = "%s://%s" % (scheme, self.host)
-        resp = Response(requests.get(url, params=self.build_params(api)))
+        params = {
+            'method': api,
+            'user': self.user,
+            'timestamp': timestamp,
+            'data': data,
+            'signature': self.signature(data, timestamp),
+            'format': 'json'    # 只支持 json
+        }
+        resp = Response(requests.get(url, params=params))
         self._log('request:', resp.url)
         self._log("response:", resp)
         return resp
-
-    def build_params(self, api):
-        return {
-            'method': api,
-            'user': self.user,
-            'timestamp': self.timestamp,
-            'data': self.data,
-            'signature': self.signature(),
-            'format': 'json'  # 只支持 JSON
-        }
 
     def build_data(self, params, raw=False):
         if not raw:
@@ -58,12 +56,12 @@ class Request(object):
             data = params
         return json.dumps(data, separators=(',', ':'))
 
-    def signature(self):
-        s = self._md5(self.data + self.app_key)
-        return self._md5("%s%s%s" % (self.timestamp, s, self.secret_key))
+    def signature(self, data, timestamp):
+        s = self._md5(data + self.app_key)
+        return self._md5("%s%s%s" % (timestamp, s, self.secret_key))
 
     def _md5(self, data):
-        return hashlib.md5(data).hexdigest()
+        return hashlib.md5(data.encode('utf-8')).hexdigest()
 
     def _log(self, *args):
         if not self.debug:
