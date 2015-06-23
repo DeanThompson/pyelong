@@ -2,6 +2,8 @@
 
 from pyelong.request import Request
 from pyelong.api.hotel import Hotel
+from pyelong.api.ihotel import Ihotel
+from pyelong.api.common import Common
 
 
 class Client(object):
@@ -14,4 +16,8 @@ class Client(object):
 
     @property
     def ihotel(self):
-        return None
+        return Ihotel(self)
+
+    @property
+    def common(self):
+        return Common(self)

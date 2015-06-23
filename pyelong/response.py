@@ -7,6 +7,7 @@ class Response(object):
         """
         self.status_code = resp.status_code  # HTTP 响应状态码
         self.headers = resp.headers  # HTTP 响应头
+        self.url = resp.url
 
         if self.status_code == 200:
             # HTTP 请求成功完成，从响应解析出 code 和 result
@@ -33,9 +34,13 @@ class Response(object):
     @property
     def __dict__(self):
         return {
+            'url': self.url,
             'status_code': self.status_code,
             'headers': self.headers,
             'code': self.code,
             'error': self.error,
             'result': self.result
         }
+
+    def __str__(self):
+        return '%s %s %s' % (self.code, self.error, self.result)

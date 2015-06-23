@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import time
 import hashlib
 import json
@@ -11,8 +12,11 @@ from pyelong.response import Response
 
 
 class Request(object):
-    def __init__(self, user, app_key, secret_key, host=ApiSpec.host,
-                 version=ApiSpec.version, local=ApiSpec.local):
+    def __init__(self, user, app_key, secret_key,
+                 host=ApiSpec.host,
+                 version=ApiSpec.version,
+                 local=ApiSpec.local,
+                 debug=False):
         self.user = user
         self.app_key = app_key
         self.secret_key = secret_key
@@ -21,12 +25,17 @@ class Request(object):
         self.version = version
         self.local = local
 
+        self.debug = debug
+
     def do(self, api, params, https):
         self.timestamp = str(int(time.time()))
         self.data = self.build_data(params)
         scheme = 'https' if https else 'http'
         url = "%s://%s" % (scheme, self.host)
-        return Response(requests.get(url, params=self.build_params(api)))
+        resp = Response(requests.get(url, params=self.build_params(api)))
+        self._log('request:', resp.url)
+        self._log("response:", resp)
+        return resp
 
     def build_params(self, api):
         return {
@@ -51,3 +60,10 @@ class Request(object):
 
     def _md5(self, data):
         return hashlib.md5(data).hexdigest()
+
+    def _log(self, *args):
+        if not self.debug:
+            return
+        prefix = '%s - pyelong -' % datetime.datetime.now()
+        msg = '%s ' * len(args) % args
+        print prefix, msg

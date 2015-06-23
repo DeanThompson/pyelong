@@ -32,7 +32,7 @@ class Order(ApiBase):
         客人姓名验证，方法名：hotel.order.checkguest
         http://open.elong.com/wiki/Hotel.order.checkguest
         """
-        return self._request('checkguest', **kwargs)
+        return self._request('checkguest', https=True, **kwargs)
 
     def update(self, **kwargs):
         """

@@ -2,6 +2,8 @@
 
 from pyelong.api.base import ApiBase
 from pyelong.api.hotel.order import Order
+from pyelong.api.hotel.data import Data
+from pyelong.api.hotel.incr import Incr
 
 __all__ = 'Hotel'
 
@@ -26,3 +28,41 @@ class Hotel(ApiBase):
     @property
     def order(self):
         return Order(self._client)
+
+    @property
+    def data(self):
+        return Data(self._client)
+
+    @property
+    def incr(self):
+        return Incr(self._client)
+
+    @property
+    def id(self):
+        return ID(self._client)
+
+    @property
+    def inv(self):
+        return Inv(self._client)
+
+
+class ID(ApiBase):
+    _category = 'hotel'
+
+    def list(self, **kwargs):
+        """
+        酒店Id列表搜索，方法名： hotel.id.list
+        http://open.elong.com/wiki/Hotel.id.list
+        """
+        return self._request('list', **kwargs)
+
+
+class Inv(ApiBase):
+    _category = 'hotel'
+
+    def validate(self, **kwargs):
+        """
+        库存验证，方法名：hotel.inv.validate
+        http://open.elong.com/wiki/Hotel.inv.validate
+        """
+        return self._request('validate', **kwargs)
