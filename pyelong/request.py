@@ -27,6 +27,14 @@ class Request(object):
 
         self.debug = debug
 
+        self._session = None
+
+    @property
+    def session(self):
+        if not self._session:
+            self._session = requests.Session()  # 默认开启 Keep-Alive
+        return self._session
+
     def do(self, api, params, https, raw=False):
         timestamp = str(int(time.time()))
         data = self.build_data(params, raw)
@@ -40,9 +48,10 @@ class Request(object):
             'signature': self.signature(data, timestamp),
             'format': 'json'  # 只支持 json
         }
-        resp = Response(requests.get(url, params=params))
+        resp = Response(self.session.get(url, params=params))
         self._log('request:', resp.url)
-        self._log("response:", resp)
+        self._log('response:', resp)
+        self._log('elapsed:', resp.elapsed)
         return resp
 
     def build_data(self, params, raw=False):

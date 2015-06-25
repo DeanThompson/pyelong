@@ -14,6 +14,9 @@ class Response(object):
         #: 请求的 URL 地址
         self.url = resp.url
 
+        #: 请求耗时
+        self.elapsed = resp.elapsed
+
         if self.status_code == 200:
             #: HTTP 请求成功完成，从响应解析出 code 和 result
             #: 详情见：http://open.elong.com/wiki/%E5%B9%B3%E5%8F%B0%E5%8D%8F%E8%AE%AE
