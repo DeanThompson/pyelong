@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 
-import datetime
-import time
 import hashlib
 import json
+import logging
+import time
+import urllib
 
 import requests
+from tornado import gen
+from tornado.httpclient import AsyncHTTPClient
 
 from pyelong.api import ApiSpec
-from pyelong.response import Response
+from pyelong.response import RequestsResponse, TornadoResponse
+
+_logger = logging.getLogger(__name__)
 
 
 class Request(object):
@@ -27,15 +32,10 @@ class Request(object):
 
         self.debug = debug
 
-        self._session = None
-
-    @property
-    def session(self):
-        if not self._session:
-            self._session = requests.Session()  # 默认开启 Keep-Alive
-        return self._session
-
     def do(self, api, params, https, raw=False):
+        raise NotImplementedError()
+
+    def prepare(self, api, params, https, raw):
         timestamp = str(int(time.time()))
         data = self.build_data(params, raw)
         scheme = 'https' if https else 'http'
@@ -46,13 +46,9 @@ class Request(object):
             'timestamp': timestamp,
             'data': data,
             'signature': self.signature(data, timestamp),
-            'format': 'json'  # 只支持 json
+            'format': 'json'
         }
-        resp = Response(self.session.get(url, params=params))
-        self._log('request:', resp.url)
-        self._log('response:', resp)
-        self._log('elapsed:', resp.elapsed)
-        return resp
+        return url, params
 
     def build_data(self, params, raw=False):
         if not raw:
@@ -69,12 +65,61 @@ class Request(object):
         s = self._md5(data + self.app_key)
         return self._md5("%s%s%s" % (timestamp, s, self.secret_key))
 
-    def _md5(self, data):
+    @staticmethod
+    def _md5(data):
         return hashlib.md5(data.encode('utf-8')).hexdigest()
 
-    def _log(self, *args):
+    def _log_resp(self, resp):
         if not self.debug:
             return
-        prefix = '%s - pyelong -' % datetime.datetime.now()
-        msg = '%s ' * len(args) % args
-        print prefix, msg.encode('utf-8')
+        _logger.info('request: %s', resp.url)
+        _logger.info('response: %s', resp)
+        _logger.info('elapsed: %s', resp.request_time)
+
+
+class SyncRequest(Request):
+    @property
+    def session(self):
+        if not hasattr(self, '_session') or not self._session:
+            self._session = requests.Session()
+        return self._session
+
+    def do(self, api, params, https, raw=False):
+        url, params = self.prepare(api, params, https, raw)
+        resp = RequestsResponse(self.session.get(url, params=params))
+        self._log_resp(resp)
+        return resp
+
+
+class AsyncRequest(Request):
+    @staticmethod
+    def _encode_params(data):
+        """
+        :param data: type of dict
+
+        token from requests.models.RequestEncodingMixin._encode_params
+        """
+        result = []
+        for k, vs in data.iteritems():
+            if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
+                vs = [vs]
+            for v in vs:
+                if v is not None:
+                    result.append(
+                        (k.encode('utf-8') if isinstance(k, str) else k,
+                         v.encode('utf-8') if isinstance(v, str) else v))
+        return urllib.urlencode(result, doseq=True)
+
+    def _prepare_url(self, url, params):
+        if url.endswith('/'):
+            url = url.strip('/')
+        return '%s?%s' % (url, self._encode_params(params))
+
+    @gen.coroutine
+    def do(self, api, params, https, raw=False):
+        url, params = self.prepare(api, params, https, raw)
+        # use the default SimpleAsyncHTTPClient
+        resp = yield AsyncHTTPClient().fetch(self._prepare_url(url, params))
+        resp = TornadoResponse(resp)
+        self._log_resp(resp)
+        raise gen.Return(resp)
