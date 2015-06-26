@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
+import re
 from setuptools import setup
+
+with open('pyelong/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
 
 setup(
     name='pyelong',
-    version='0.0.2',
+    version=version,
     packages=[
         'pyelong',
         'pyelong.api',
