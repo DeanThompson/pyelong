@@ -11,6 +11,7 @@ pyelong
 - 自动选择 HTTP／HTTPS
 - 计算签名、生成请求链接
 - 使用简单，调用参数与文档保持一致
+- 支持同步（requests）和 Tornado 异步（AsyncHTTPClient, coroutine）
 
 ## 不支持
 
@@ -20,13 +21,24 @@ pyelong
 
 ## 安装
 
+用 pip 安装：
+
+```bash
+pip install -e git+https://github.com/DeanThompson/pyelong.git@master#egg=pyelong
+```
+
+也可以通过源码安装：
+
 ```bash
 git clone git@github.com:DeanThompson/pyelong.git
 cd pyelong
 python setup.py install
 ```
 
-依赖 [requests](http://docs.python-requests.org/en/latest/) 库.
+依赖:
+
+- [requests](http://docs.python-requests.org/en/latest/)
+- [Tornado](http://www.tornadoweb.org/en/stable/)
 
 ## 使用
 
@@ -66,6 +78,42 @@ print response.result
 
 # print response
 ```
+
+## 与 Tornado 一起使用
+
+```python
+from tornado.web import RequestHandler, Application
+from tornado import gen, ioloop, options
+
+from pyelong import Client
+
+client = Client(
+    user=user,
+    app_key=app_key,
+    secret_key=secret_key,
+    host='api.test.lohoo.com/rest',  # 测试环境
+    use_tornado=True   # 显示设置为 True，使用 AsyncHTTPClient
+)
+
+class HotelListHandler(RequestHandler):
+    @gen.coroutine
+    def get():
+        resp = yield client.hotel.list(ArrivalDate='06/24/2015',
+                                       DepartureDate='06/25/2015',
+                                       CityId='0101')
+        self.write(resp.to_json())
+
+
+application = Application([
+    (r'/hotel/list', HotelListHandler)
+])
+
+if __name__ == '__main__':
+    application.listen(9999)
+    ioloop.IOLoop().instance().start()
+```
+
+更多信息见：[examples/async.py](examples/async.py)
 
 ## LICENSE
 

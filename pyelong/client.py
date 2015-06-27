@@ -17,7 +17,6 @@ class Client(object):
                     - host: 指定 API 的 host，默认是：api.elong.com/rest
                     - version: 指定 API 版本
                     - local: 指定语言，默认是 zh_CN
-                    - debug: 如果设置为 True，会有些信心输出，默认为 False
 
         Usage::
 

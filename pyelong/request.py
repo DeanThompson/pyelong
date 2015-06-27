@@ -20,8 +20,7 @@ class Request(object):
     def __init__(self, user, app_key, secret_key,
                  host=ApiSpec.host,
                  version=ApiSpec.version,
-                 local=ApiSpec.local,
-                 debug=False):
+                 local=ApiSpec.local):
         self.user = user
         self.app_key = app_key
         self.secret_key = secret_key
@@ -29,8 +28,6 @@ class Request(object):
         self.host = host
         self.version = version
         self.local = local
-
-        self.debug = debug
 
     def do(self, api, params, https, raw=False):
         raise NotImplementedError()
@@ -69,12 +66,11 @@ class Request(object):
     def _md5(data):
         return hashlib.md5(data.encode('utf-8')).hexdigest()
 
-    def _log_resp(self, resp):
-        if not self.debug:
-            return
-        _logger.info('request: %s', resp.url)
-        _logger.info('response: %s', resp)
-        _logger.info('elapsed: %s', resp.request_time)
+    @staticmethod
+    def _log_resp(resp):
+        _logger.debug('request: %s', resp.url)
+        _logger.debug('response: %s', resp)
+        _logger.debug('elapsed: %s', resp.request_time)
 
 
 class SyncRequest(Request):

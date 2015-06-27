@@ -17,8 +17,7 @@ client = Client(
     app_key=env('elong_app_key'),
     secret_key=env('elong_secret_key'),
     host='api.test.lohoo.com/rest',  # 测试环境
-    use_tornado=True,
-    debug=True
+    use_tornado=True   # AsyncHTTPClient
 )
 
 sync_client = Client(
@@ -26,8 +25,7 @@ sync_client = Client(
     app_key=env('elong_app_key'),
     secret_key=env('elong_secret_key'),
     host='api.test.lohoo.com/rest',  # 测试环境
-    use_tornado=False,
-    debug=True
+    use_tornado=False  # requests
 )
 
 
