@@ -8,6 +8,7 @@ import urllib
 
 import requests
 from tornado import gen
+
 from tornado.httpclient import AsyncHTTPClient
 
 from pyelong.api import ApiSpec
@@ -18,12 +19,16 @@ _logger = logging.getLogger(__name__)
 
 class Request(object):
     def __init__(self, user, app_key, secret_key,
+                 cert=None,
                  host=ApiSpec.host,
                  version=ApiSpec.version,
                  local=ApiSpec.local):
         self.user = user
         self.app_key = app_key
         self.secret_key = secret_key
+
+        self.cert = cert
+        self.verify_ssl = self.cert is not None
 
         self.host = host
         self.version = version
@@ -82,7 +87,9 @@ class SyncRequest(Request):
 
     def do(self, api, params, https, raw=False):
         url, params = self.prepare(api, params, https, raw)
-        resp = RequestsResponse(self.session.get(url, params=params))
+        result = self.session.get(url, params=params,
+                                  verify=self.verify_ssl, cert=self.cert)
+        resp = RequestsResponse(result)
         self._log_resp(resp)
         return resp
 
@@ -91,7 +98,7 @@ class AsyncRequest(Request):
     @staticmethod
     def _encode_params(data):
         """
-        :param data: type of dict
+        :param dict data: params
 
         token from requests.models.RequestEncodingMixin._encode_params
         """
@@ -115,7 +122,9 @@ class AsyncRequest(Request):
     def do(self, api, params, https, raw=False):
         url, params = self.prepare(api, params, https, raw)
         # use the default SimpleAsyncHTTPClient
-        resp = yield AsyncHTTPClient().fetch(self._prepare_url(url, params))
+        resp = yield AsyncHTTPClient().fetch(self._prepare_url(url, params),
+                                             validate_cert=self.verify_ssl,
+                                             ca_certs=self.cert)
         resp = TornadoResponse(resp)
         self._log_resp(resp)
         raise gen.Return(resp)

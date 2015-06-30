@@ -17,7 +17,7 @@ client = Client(
     app_key=env('elong_app_key'),
     secret_key=env('elong_secret_key'),
     host='api.test.lohoo.com/rest',  # 测试环境
-    use_tornado=True   # AsyncHTTPClient
+    use_tornado=True  # AsyncHTTPClient
 )
 
 sync_client = Client(
@@ -28,30 +28,30 @@ sync_client = Client(
     use_tornado=False  # requests
 )
 
+list_kwargs = dict(
+    regionId=178308,
+    checkInDate='2015-07-07',
+    checkOutDate='2015-07-08',
+    pageSize=10,
+    pageIndex=1
+)
+
 
 class HelloHandler(RequestHandler):
     def get(self, name):
         self.write('Hello, ' + name)
 
 
-class HotelListHandler(RequestHandler):
+class IHotelListHandler(RequestHandler):
     @gen.coroutine
     def get(self):
-        print '+++++' * 10
-        resp = yield client.hotel.list(ArrivalDate='06/24/2015',
-                                       DepartureDate='06/25/2015',
-                                       CityId='0101')
-        print '-----' * 10
+        resp = yield client.ihotel.list(**list_kwargs)
         self.write(resp.to_json())
 
 
-class SyncHotelListHandler(RequestHandler):
+class SyncIHotelListHandler(RequestHandler):
     def get(self):
-        print '*****' * 10
-        resp = sync_client.hotel.list(ArrivalDate='06/24/2015',
-                                      DepartureDate='06/25/2015',
-                                      CityId='0101')
-        print '#####' * 10
+        resp = sync_client.ihotel.list(**list_kwargs)
         self.write(resp.to_json())
 
 
@@ -63,8 +63,8 @@ settings = {
 
 application = Application([
     (r'/hello/(.*)', HelloHandler),
-    (r'/hotel/list', HotelListHandler),
-    (r'/sync/hotel/list', SyncHotelListHandler),
+    (r'/ihotel/list', IHotelListHandler),
+    (r'/sync/ihotel/list', SyncIHotelListHandler),
 ], **settings)
 
 application.listen(port=9999)

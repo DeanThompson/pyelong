@@ -23,8 +23,10 @@ class Response(object):
 
             if '|' in self.code:
                 self.code, self.error = self.code.split('|', 1)
+            elif content.get('Message'):
+                self.error = content.get('Message')
             else:
-                self.error = ''
+                self.error = None
 
             #: Elong API 请求返回的结果数据对象
             self.result = content.get('Result', None)
