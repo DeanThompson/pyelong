@@ -17,13 +17,14 @@ setup(
         'pyelong.api.ihotel',
         'pyelong.api.common'
     ],
-    url='',
+    url='https://github.com/DeanThompson/pyelong',
     license='MIT',
     author='Yangliang Li',
     author_email='yanglianglee@gmail.com',
     description='Python SDK for Elong (http://elong.com/) rest APIs.',
     zip_safe=False,
     install_requires=[
-        'requests>=2.7.0'
+        'requests>=2.7.0',
+        'tornado>=4.2'
     ]
 )
