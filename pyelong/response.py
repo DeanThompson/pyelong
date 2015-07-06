@@ -38,7 +38,7 @@ class Response(object):
 
     @property
     def ok(self):
-        return self.error is None
+        return int(self.code) == 0
 
     @property
     def url(self):
