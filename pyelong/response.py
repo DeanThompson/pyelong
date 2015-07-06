@@ -28,6 +28,7 @@ class Response(object):
             else:
                 self.error = None
 
+            self.code = self.code.strip()
             #: Elong API 请求返回的结果数据对象
             self.result = content.get('Result', None)
         else:
@@ -38,7 +39,7 @@ class Response(object):
 
     @property
     def ok(self):
-        return int(self.code) == 0
+        return self.code == '0'
 
     @property
     def url(self):
