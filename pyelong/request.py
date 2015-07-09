@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import logging
 import time
 import urllib
 
@@ -13,8 +12,6 @@ from tornado.httpclient import AsyncHTTPClient
 
 from pyelong.api import ApiSpec
 from pyelong.response import RequestsResponse, TornadoResponse
-
-_logger = logging.getLogger(__name__)
 
 
 class Request(object):
@@ -71,12 +68,6 @@ class Request(object):
     def _md5(data):
         return hashlib.md5(data.encode('utf-8')).hexdigest()
 
-    @staticmethod
-    def _log_resp(resp):
-        _logger.debug('request: %s', resp.url)
-        _logger.debug('response: %s', resp)
-        _logger.debug('elapsed: %s', resp.request_time)
-
 
 class SyncRequest(Request):
     @property
@@ -90,7 +81,6 @@ class SyncRequest(Request):
         result = self.session.get(url, params=params,
                                   verify=self.verify_ssl, cert=self.cert)
         resp = RequestsResponse(result)
-        self._log_resp(resp)
         return resp
 
 
@@ -126,5 +116,4 @@ class AsyncRequest(Request):
                                              validate_cert=self.verify_ssl,
                                              ca_certs=self.cert)
         resp = TornadoResponse(resp)
-        self._log_resp(resp)
         raise gen.Return(resp)

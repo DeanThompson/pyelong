@@ -45,6 +45,14 @@ class HelloHandler(RequestHandler):
 class IHotelListHandler(RequestHandler):
     @gen.coroutine
     def get(self):
+        checkin_date = self.get_argument('checkin_date')
+        if checkin_date:
+            list_kwargs.update({'checkInDate': checkin_date})
+
+        checkout_date = self.get_argument('checkout_date')
+        if checkout_date:
+            list_kwargs.update({'checkOutDate': checkout_date})
+
         resp = yield client.ihotel.list(**list_kwargs)
         self.write(resp.to_json())
 

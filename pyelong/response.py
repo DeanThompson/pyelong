@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 import tornado.escape
+
+_logger = logging.getLogger(__name__)
 
 
 class Response(object):
@@ -37,6 +41,8 @@ class Response(object):
             self.reason = self._resp.reason
             self.result = None
 
+        self._log_request()
+
     @property
     def ok(self):
         return self.code == '0'
@@ -59,6 +65,16 @@ class Response(object):
         :return: milliseconds from request start to finish
         """
         return 0
+
+    def _log_request(self):
+        if self.ok:
+            _logger.info('pyelong request: %s', self.url)
+            _logger.info('pyelong result: %s', self.result)
+        else:
+            _logger.error('pyelong request error, url: %s, code: %s, error: %s',
+                          self.url, self.code, self.error)
+
+        _logger.info('pyelong elapsed: %s ms', self.request_time)
 
     def to_json(self):
         return {
