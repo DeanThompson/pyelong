@@ -12,6 +12,7 @@ pyelong
 - 计算签名、生成请求链接
 - 使用简单，调用参数与文档保持一致
 - 支持同步（requests）和 Tornado 异步（AsyncHTTPClient, coroutine）
+- 有信用卡加密方法
 
 ## 不支持
 
