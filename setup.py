@@ -15,7 +15,8 @@ setup(
         'pyelong.api',
         'pyelong.api.hotel',
         'pyelong.api.ihotel',
-        'pyelong.api.common'
+        'pyelong.api.common',
+        'pyelong.util'
     ],
     url='https://github.com/DeanThompson/pyelong',
     license='MIT',
@@ -25,6 +26,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'requests>=2.7.0',
-        'tornado>=4.2'
+        'tornado>=4.2',
+        'pycrypto>=2.6.1'
     ]
 )
