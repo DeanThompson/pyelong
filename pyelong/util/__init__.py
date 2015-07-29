@@ -11,9 +11,9 @@ except ImportError:
 
 
 def des_encrypt(data, key, iv, mode=DES.MODE_CBC):
-    cihper = DES.new(key, mode=mode, IV=iv)
-    padded_text = pad(data, cihper.block_size)
-    return cihper.encrypt(padded_text).encode('hex')
+    cipher = DES.new(key, mode=mode, IV=iv)
+    padded_text = pad(data, cipher.block_size)
+    return cipher.encrypt(padded_text).encode('hex')
 
 
 def des_decrypt(data, key, iv, mode=DES.MODE_CBC):

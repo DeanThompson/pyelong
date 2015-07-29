@@ -25,6 +25,12 @@ pyelong
 用 pip 安装：
 
 ```bash
+pip install pyelong
+```
+
+或者：
+
+```bash
 pip install -e git+https://github.com/DeanThompson/pyelong.git@master#egg=pyelong
 ```
 
@@ -40,6 +46,7 @@ python setup.py install
 
 - [requests](http://docs.python-requests.org/en/latest/)
 - [Tornado](http://www.tornadoweb.org/en/stable/)
+- [pycrypto](https://www.dlitz.net/software/pycrypto/)
 
 ## 使用
 
@@ -57,7 +64,8 @@ client = Client(user=user, app_key=app_key, secret_key=secret_key)
 # host: 指定 API 的 host，在开发时最好指定测试环境的 host
 # local: 语言
 # version: API 版本，默认 1.1
-# debug: 设置为 True 在开发时会在标准输出看到请求的 URL 和返回值
+# use_tornado: 是否适配 Tornado
+# cert: SSL 证书文件路径，如果不指定不会进行证书检查
 ```
 
 ### 调用

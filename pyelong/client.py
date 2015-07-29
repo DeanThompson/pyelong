@@ -38,14 +38,14 @@ class Client(object):
     def common(self):
         return Common(self)
 
-    def encrypt_credit_card_no(self, card_no, timestamp=None):
-        """ 加密信用卡号
-        :param card_no: 信用卡号
+    def encrypt_credit_card_field(self, value, timestamp=None):
+        """ 加密信用卡信息
+        :param value: 字段值
         :param timestamp: 时间戳
         :return: 16 进制数
         """
         key = self.request.app_key[-8:]
         if not timestamp:
             timestamp = str(int(time.time()))
-        data = "%s#%s" % (timestamp, card_no)
+        data = "%s#%s" % (timestamp, value)
         return des_encrypt(data, key=key, iv=key)
