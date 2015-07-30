@@ -38,14 +38,21 @@ class Client(object):
     def common(self):
         return Common(self)
 
-    def encrypt_credit_card_field(self, value, timestamp=None):
+    @property
+    def _encrypt_key(self):
+        return self.request.app_key[-8:]
+
+    def encrypt_credit_card_fields(self, kvs, timestamp=None):
         """ 加密信用卡信息
-        :param value: 字段值
+        :param dict kvs: 字典类型的信用卡信息
         :param timestamp: 时间戳
-        :return: 16 进制数
+        :return: 把 kvs 里的每个值加密后返回
         """
-        key = self.request.app_key[-8:]
         if not timestamp:
             timestamp = str(int(time.time()))
-        data = "%s#%s" % (timestamp, value)
-        return des_encrypt(data, key=key, iv=key)
+        key = self._encrypt_key
+        rv = {}
+        for field, value in kvs.iteritems():
+            data = '%s#%s' % (timestamp, value)
+            rv[field] = des_encrypt(data=data, key=key, iv=key)
+        return rv
