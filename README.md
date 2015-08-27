@@ -13,11 +13,11 @@ pyelong
 - 使用简单，调用参数与文档保持一致
 - 支持同步（requests）和 Tornado 异步（AsyncHTTPClient, coroutine）
 - 有信用卡加密方法
+- requests 请求支持简单的基于 HTTP 状态码和 API 错误码的重试
 
 ## 不支持
 
 - 没有针对 API 做参数检查
-- 出错时不检查 code，没有重试
 - 不支持 xml 格式的请求和返回值
 
 ## 安装

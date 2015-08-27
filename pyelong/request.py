@@ -7,11 +7,11 @@ import urllib
 
 import requests
 from tornado import gen
-
 from tornado.httpclient import AsyncHTTPClient
 
 from pyelong.api import ApiSpec
-from pyelong.response import RequestsResponse, TornadoResponse
+from pyelong.response import RequestsResponse, TornadoResponse, _logger
+from pyelong.util.retry import retry_on_error
 
 
 class Request(object):
@@ -76,6 +76,7 @@ class SyncRequest(Request):
             self._session = requests.Session()
         return self._session
 
+    @retry_on_error(logger=_logger)
     def do(self, api, params, https, raw=False):
         url, params = self.prepare(api, params, https, raw)
         result = self.session.get(url, params=params,
