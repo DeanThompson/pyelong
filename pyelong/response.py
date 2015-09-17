@@ -45,25 +45,27 @@ class Response(object):
 
     @property
     def ok(self):
+        """Whether the API returns successfully"""
         return self.code == '0'
 
     @property
     def url(self):
+        """The requested URL"""
         return None
 
     @property
     def status_code(self):
+        """Status code of HTTP response"""
         return 200
 
     @property
     def headers(self):
+        """Headers of HTTP response"""
         return self._resp.headers
 
     @property
     def request_time(self):
-        """
-        :return: milliseconds from request start to finish
-        """
+        """Elapsed time in milliseconds."""
         return 0
 
     def _log_request(self):

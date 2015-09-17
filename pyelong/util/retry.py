@@ -36,12 +36,12 @@ class Retry(object):
         return decorator
 
 
-class retry_on_server_error(Retry):
-    def should_retry(self, resp):
-        return 500 <= resp.status_code <= 599
+class _ServerErrorMixin(object):
+    def is_server_error(self, status_code):
+        return 500 <= status_code <= 599
 
 
-class retry_on_api_error(Retry):
+class _APIErrorMixin(object):
     codes_could_retry = {
         'I-0004',  # inner system exception
         'I-0005',  # unknown system exception
@@ -65,11 +65,21 @@ class retry_on_api_error(Retry):
         'H101093',  # 底层提交订单保存异常,请重试
     }
 
-    def should_retry(self, resp):
-        return resp.code in self.codes_could_retry
+    def api_error_could_retry(self, code):
+        return code in self.codes_could_retry
 
 
-class retry_on_error(retry_on_api_error):
+class retry_on_server_error(_ServerErrorMixin, Retry):
     def should_retry(self, resp):
-        rv = super(retry_on_error, self).should_retry(resp)
-        return rv or 500 <= resp.status_code <= 599
+        return self.is_server_error(resp.status_code)
+
+
+class retry_on_api_error(_APIErrorMixin, Retry):
+    def should_retry(self, resp):
+        return self.api_error_could_retry(resp.code)
+
+
+class retry_on_error(_APIErrorMixin, _ServerErrorMixin, Retry):
+    def should_retry(self, resp):
+        is_server_error = self.is_server_error(resp.status_code)
+        return is_server_error or self.api_error_could_retry(resp.code)

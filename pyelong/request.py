@@ -91,7 +91,7 @@ class AsyncRequest(Request):
         """
         :param dict data: params
 
-        token from requests.models.RequestEncodingMixin._encode_params
+        Taken from requests.models.RequestEncodingMixin._encode_params
         """
         result = []
         for k, vs in data.iteritems():
