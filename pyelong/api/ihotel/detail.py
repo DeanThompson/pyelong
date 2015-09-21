@@ -36,14 +36,17 @@ class Detail(ApiBase):
             - 房间大人个数是1或者2，不能带小孩
             - 传入 productId 参数，将不受上面的限制并且结果不使用缓存
         """
+        use_detail_avail = False
         room_group = kwargs.get('roomGroup', [])
         if room_group:
-            use_detail_avail = False
-            for room in room_group:
+            if len(room_group) > 1:
+                use_detail_avail = True
+            else:
+                room = room_group[0]
                 if room['childAges'] or room['numberOfAdults'] > 2:
                     use_detail_avail = True
-                    break
-            if use_detail_avail:
-                return self._request('avail', raw=True, **kwargs)
+
+        if use_detail_avail:
+            return self._request('avail', raw=True, **kwargs)
 
         return self._request('', raw=True, **kwargs)

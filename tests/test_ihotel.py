@@ -2,11 +2,19 @@
 
 __author__ = 'leon'
 
+import datetime
+
 from testconf import client
 
+ci_date = datetime.date.today() + datetime.timedelta(days=1)
+co_date = ci_date + datetime.timedelta(days=2)
+
+ci_date = ci_date.isoformat()
+co_date = co_date.isoformat()
+
 detail_args = {
-    u'checkInDate': u'2015-09-23',
-    u'checkOutDate': u'2015-09-24',
+    u'checkInDate': ci_date,
+    u'checkOutDate': co_date,
     u'iHotelId': 331690,
     u'options': u'1',
     u'roomGroup': [
@@ -16,9 +24,24 @@ detail_args = {
     ]
 }
 
+detail_auto_detect_args = {
+    u'checkInDate': ci_date,
+    u'checkOutDate': co_date,
+    u'iHotelId': 331690,
+    u'options': u'1',
+    u'roomGroup': [
+        {
+            u'childAges': u'', u'numberOfAdults': 2
+        },
+        {
+            u'childAges': u'', u'numberOfAdults': 2
+        }
+    ]
+}
+
 detail_avail_args = {
-    u'checkInDate': u'2015-09-23',
-    u'checkOutDate': u'2015-09-24',
+    u'checkInDate': ci_date,
+    u'checkOutDate': co_date,
     u'iHotelId': 331690,
     u'options': u'1',
     u'roomGroup': [
@@ -29,5 +52,7 @@ detail_avail_args = {
 }
 
 client.ihotel.detail(**detail_args)
+
+client.ihotel.detail(**detail_auto_detect_args)
 
 client.ihotel.detail.avail(**detail_avail_args)
