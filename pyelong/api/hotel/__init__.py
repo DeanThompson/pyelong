@@ -12,16 +12,20 @@ class Hotel(ApiBase):
     _category = ''
 
     def list(self, **kwargs):
-        """
-        酒店列表搜索，方法名：hotel.list
-        http://open.elong.com/wiki/Hotel.list
+        """酒店列表搜索，方法名：hotel.list
+
+        文档
+        ~~~~
+            - http://open.elong.com/wiki/Hotel.list
         """
         return self._request('list', **kwargs)
 
     def detail(self, **kwargs):
-        """
-        酒店详情搜索，方法名：hotel.detail
-        http://open.elong.com/wiki/Hotel.detail
+        """酒店详情搜索，方法名：hotel.detail
+
+        文档
+        ~~~~
+            - http://open.elong.com/wiki/Hotel.detail
         """
         return self._request('detail', **kwargs)
 
@@ -50,9 +54,11 @@ class ID(ApiBase):
     _category = 'hotel'
 
     def list(self, **kwargs):
-        """
-        酒店Id列表搜索，方法名： hotel.id.list
-        http://open.elong.com/wiki/Hotel.id.list
+        """酒店Id列表搜索，方法名： hotel.id.list
+
+        文档
+        ~~~~
+            - http://open.elong.com/wiki/Hotel.id.list
         """
         return self._request('list', **kwargs)
 
@@ -61,8 +67,10 @@ class Inv(ApiBase):
     _category = 'hotel'
 
     def validate(self, **kwargs):
-        """
-        库存验证，方法名：hotel.inv.validate
-        http://open.elong.com/wiki/Hotel.inv.validate
+        """库存验证，方法名：hotel.inv.validate
+
+        文档
+        ~~~~
+            - http://open.elong.com/wiki/Hotel.inv.validate
         """
         return self._request('validate', **kwargs)
