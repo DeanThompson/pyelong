@@ -2,6 +2,7 @@
 
 from pyelong.api.base import ApiBase
 from pyelong.api.ihotel.order import Order
+from pyelong.api.ihotel.detail import Detail
 
 __all__ = ('Ihotel')
 
@@ -16,12 +17,9 @@ class Ihotel(ApiBase):
         """
         return self._request('list', raw=True, **kwargs)
 
-    def detail(self, **kwargs):
-        """
-        国际酒店详情，方法名：ihotel.detail
-        http://open.elong.com/wiki/Ihotel.detail
-        """
-        return self._request('detail', raw=True, **kwargs)
+    @property
+    def detail(self):
+        return Detail(self._client)
 
     @property
     def order(self):

@@ -63,3 +63,4 @@ target/
 pyelong.iml
 examples/env_config
 .DS_Store
+tests/api_settings.py

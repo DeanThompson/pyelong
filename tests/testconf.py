@@ -5,14 +5,14 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
-from pyelong import Client
+import logging
 
-client = Client(
-    user=os.environ.get('elong_user'),
-    app_key=os.environ.get('elong_app_key'),
-    secret_key=os.environ.get('elong_secret_key'),
-    host='api.test.lohoo.com/rest'  # 测试环境
-)
+from pyelong import Client
+from api_settings import ELONG_API_SETTINGS
+
+logging.basicConfig(level=logging.DEBUG)
+
+client = Client(**ELONG_API_SETTINGS)
 
 fake_client = Client(
     user='test_user',
