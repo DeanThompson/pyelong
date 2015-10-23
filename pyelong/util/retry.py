@@ -5,44 +5,11 @@ __author__ = 'leon'
 import time
 import logging
 
-
-class Retry(object):
-    def __init__(self, max_retries=5, delay=0.1, backoff=2, logger=None):
-        self.max_retries = max_retries
-        self.delay = delay
-        self.backoff = backoff
-
-        if logger is None:
-            logger = logging.getLogger(__name__)
-        self.logger = logger
-
-    def should_retry(self, resp):
-        return resp.status_code == 500
-
-    def __call__(self, func):
-        def decorator(*args, **kwargs):
-            delay = self.delay
-            tries = 0
-            while True:
-                resp = func(*args, **kwargs)
-                if not self.should_retry(resp) or tries >= self.max_retries:
-                    return resp
-                self.logger.warn('retry [%d], delay: %s ms', tries,
-                                 delay * 1000)
-                tries += 1
-                time.sleep(delay)
-                delay *= self.backoff
-
-        return decorator
+from pyelong.exceptions import ElongAPIError
 
 
-class _ServerErrorMixin(object):
-    def is_server_error(self, status_code):
-        return 500 <= status_code <= 599
-
-
-class _APIErrorMixin(object):
-    codes_could_retry = {
+class retry_on_error(object):
+    _codes_could_retry = {
         'I-0004',  # inner system exception
         'I-0005',  # unknown system exception
 
@@ -65,21 +32,39 @@ class _APIErrorMixin(object):
         'H101093',  # 底层提交订单保存异常,请重试
     }
 
-    def api_error_could_retry(self, code):
-        return code in self.codes_could_retry
+    def __init__(self, max_retries=5, delay=0.1, backoff=2,
+                 retry_api_error=True, logger=None):
+        self.max_retries = max_retries
+        self.delay = delay
+        self.backoff = backoff
+        self.retry_api_error = retry_api_error
 
+        if logger is None:
+            logger = logging.getLogger(__name__)
+        self.logger = logger
 
-class retry_on_server_error(_ServerErrorMixin, Retry):
-    def should_retry(self, resp):
-        return self.is_server_error(resp.status_code)
+    def is_server_error(self, resp):
+        return 500 <= resp.status_code <= 599
 
+    def __call__(self, func):
+        def decorator(*args, **kwargs):
+            delay = self.delay
+            tries = 0
+            while 1:
+                try:
+                    resp = func(*args, **kwargs)
+                except ElongAPIError as e:
+                    if not self.retry_api_error:
+                        raise
+                    resp = e.resp
+                    if resp.code not in self._codes_could_retry:
+                        raise
+                if not self.is_server_error(resp) or tries >= self.max_retries:
+                    return resp
+                self.logger.warn('retry [%d], delay: %s ms', tries,
+                                 delay * 1000)
+                tries += 1
+                time.sleep(delay)
+                delay *= self.backoff
 
-class retry_on_api_error(_APIErrorMixin, Retry):
-    def should_retry(self, resp):
-        return self.api_error_could_retry(resp.code)
-
-
-class retry_on_error(_APIErrorMixin, _ServerErrorMixin, Retry):
-    def should_retry(self, resp):
-        is_server_error = self.is_server_error(resp.status_code)
-        return is_server_error or self.api_error_could_retry(resp.code)
+        return decorator

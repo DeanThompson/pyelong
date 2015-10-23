@@ -6,26 +6,23 @@ import time
 import urllib
 
 import requests
+from requests import RequestException
 from tornado import gen
 from tornado.httpclient import AsyncHTTPClient
 
 from pyelong.api import ApiSpec
+from pyelong.exceptions import ElongAPIError, ElongException
 from pyelong.response import RequestsResponse, TornadoResponse, _logger
 from pyelong.util.retry import retry_on_error
 
 
 class Request(object):
-    def __init__(self, user, app_key, secret_key,
-                 cert=None,
+    def __init__(self, client,
                  host=ApiSpec.host,
                  version=ApiSpec.version,
                  local=ApiSpec.local):
-        self.user = user
-        self.app_key = app_key
-        self.secret_key = secret_key
-
-        self.cert = cert
-        self.verify_ssl = self.cert is not None
+        self.client = client
+        self.verify_ssl = self.client.cert is not None
 
         self.host = host
         self.version = version
@@ -41,7 +38,7 @@ class Request(object):
         url = "%s://%s" % (scheme, self.host)
         params = {
             'method': api,
-            'user': self.user,
+            'user': self.client.user,
             'timestamp': timestamp,
             'data': data,
             'signature': self.signature(data, timestamp),
@@ -61,12 +58,23 @@ class Request(object):
         return json.dumps(data, separators=(',', ':'))
 
     def signature(self, data, timestamp):
-        s = self._md5(data + self.app_key)
-        return self._md5("%s%s%s" % (timestamp, s, self.secret_key))
+        s = self._md5(data + self.client.app_key)
+        return self._md5("%s%s%s" % (timestamp, s, self.client.secret_key))
 
     @staticmethod
     def _md5(data):
         return hashlib.md5(data.encode('utf-8')).hexdigest()
+
+    def check_response(self, resp):
+        if not resp.ok and self.client.raise_api_error:
+            _logger.error('pyelong calling api failed, url: %s', resp.url)
+            raise ElongAPIError(resp)
+        return resp
+
+    def timing(self, api, delta):
+        if self.client.statsd_client and \
+                hasattr(self.client.statsd_client, 'timing'):
+            self.client.statsd_client.timing(api, delta)
 
 
 class SyncRequest(Request):
@@ -76,13 +84,26 @@ class SyncRequest(Request):
             self._session = requests.Session()
         return self._session
 
-    @retry_on_error(logger=_logger)
+    @retry_on_error(retry_api_error=True, logger=_logger)
     def do(self, api, params, https, raw=False):
         url, params = self.prepare(api, params, https, raw)
-        result = self.session.get(url, params=params,
-                                  verify=self.verify_ssl, cert=self.cert)
+        try:
+            result = self.session.get(url=url,
+                                      params=params,
+                                      verify=self.verify_ssl,
+                                      cert=self.client.cert)
+        except RequestException as e:
+            _logger.exception('pyelong catches RequestException, url: %s,'
+                              ' params: %s', url, params)
+            raise ElongException('caught RequestException: %s' % e)
+        except Exception as e:
+            _logger.exception('pyelong catches unknown exception, url: %s, '
+                              'params: %s', url, params)
+            raise ElongException('caught unknown exception: %s' % e)
+
         resp = RequestsResponse(result)
-        return resp
+        self.timing(api, resp.request_time)
+        return self.check_response(resp)
 
 
 class AsyncRequest(Request):
@@ -115,6 +136,7 @@ class AsyncRequest(Request):
         # use the default SimpleAsyncHTTPClient
         resp = yield AsyncHTTPClient().fetch(self._prepare_url(url, params),
                                              validate_cert=self.verify_ssl,
-                                             ca_certs=self.cert)
+                                             ca_certs=self.client.cert)
         resp = TornadoResponse(resp)
-        raise gen.Return(resp)
+        self.timing(api, resp.request_time)
+        raise gen.Return(self.check_response(resp))
