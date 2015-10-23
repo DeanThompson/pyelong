@@ -68,7 +68,7 @@ class Request(object):
     def check_response(self, resp):
         if not resp.ok and self.client.raise_api_error:
             _logger.error('pyelong calling api failed, url: %s', resp.url)
-            raise ElongAPIError(resp)
+            raise ElongAPIError(resp.code, resp.error)
         return resp
 
     def timing(self, api, delta):

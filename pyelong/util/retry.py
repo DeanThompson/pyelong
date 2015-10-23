@@ -46,25 +46,30 @@ class retry_on_error(object):
     def is_server_error(self, resp):
         return 500 <= resp.status_code <= 599
 
+    def _sleep(self, tries, delay):
+        self.logger.warn('retry [%d], delay: %s ms', tries, delay * 1000)
+        time.sleep(delay)
+        return delay * self.backoff
+
     def __call__(self, func):
         def decorator(*args, **kwargs):
             delay = self.delay
             tries = 0
-            while 1:
+            while tries < self.max_retries:
+                tries += 1
                 try:
                     resp = func(*args, **kwargs)
                 except ElongAPIError as e:
-                    if not self.retry_api_error:
+                    if not self.retry_api_error or tries == self.max_retries:
                         raise
-                    resp = e.resp
-                    if resp.code not in self._codes_could_retry:
+                    if e.code not in self._codes_could_retry:
                         raise
-                if not self.is_server_error(resp) or tries >= self.max_retries:
+                    delay = self._sleep(tries, delay)
+                    continue
+
+                if not self.is_server_error(resp) or tries == self.max_retries:
                     return resp
-                self.logger.warn('retry [%d], delay: %s ms', tries,
-                                 delay * 1000)
-                tries += 1
-                time.sleep(delay)
-                delay *= self.backoff
+
+                delay = self._sleep(tries, delay)
 
         return decorator
