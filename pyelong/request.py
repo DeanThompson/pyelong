@@ -6,14 +6,15 @@ import time
 import urllib
 
 import requests
-from requests import RequestException
+from requests import RequestException, ConnectionError, Timeout
 from tornado import gen
 from tornado.httpclient import AsyncHTTPClient
 
 from pyelong.api import ApiSpec
-from pyelong.exceptions import ElongAPIError, ElongException
+from pyelong.exceptions import ElongException, ElongAPIError, \
+    RetryableException, RetryableAPIError
 from pyelong.response import RequestsResponse, TornadoResponse, _logger
-from pyelong.util.retry import retry_on_error
+from pyelong.util.retry import retry_on_error, is_retryable
 
 
 class Request(object):
@@ -68,6 +69,8 @@ class Request(object):
     def check_response(self, resp):
         if not resp.ok and self.client.raise_api_error:
             _logger.error('pyelong calling api failed, url: %s', resp.url)
+            if is_retryable(resp.code):
+                raise RetryableAPIError(resp.code, resp.error)
             raise ElongAPIError(resp.code, resp.error)
         return resp
 
@@ -92,14 +95,18 @@ class SyncRequest(Request):
                                       params=params,
                                       verify=self.verify_ssl,
                                       cert=self.client.cert)
+        except (ConnectionError, Timeout) as e:
+            _logger.exception('pyelong catches ConnectionError or Timeout, '
+                              'url: %s, params: %s', url, params)
+            raise RetryableException('ConnectionError or Timeout: %s' % e)
         except RequestException as e:
             _logger.exception('pyelong catches RequestException, url: %s,'
                               ' params: %s', url, params)
-            raise ElongException('caught RequestException: %s' % e)
+            raise ElongException('RequestException: %s' % e)
         except Exception as e:
             _logger.exception('pyelong catches unknown exception, url: %s, '
                               'params: %s', url, params)
-            raise ElongException('caught unknown exception: %s' % e)
+            raise ElongException('unknown exception: %s' % e)
 
         resp = RequestsResponse(result)
         self.timing(api, resp.request_time)
