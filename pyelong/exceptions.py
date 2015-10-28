@@ -2,6 +2,8 @@
 
 __author__ = 'leon'
 
+from .util import utf8
+
 
 class ElongException(Exception):
     """Base exception class used by :mod:`~pyelong`"""
@@ -16,7 +18,7 @@ class ElongAPIError(ElongException):
 
     def __init__(self, code, message):
         self.code = code
-        self.message = message
+        self.message = utf8(message)
 
     def __str__(self):
         return '<ElongAPIError ("%s", "%s")>' % (self.code, self.message)

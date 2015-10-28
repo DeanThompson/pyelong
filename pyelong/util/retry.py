@@ -9,7 +9,7 @@ from pyelong.exceptions import RetryableAPIError, RetryableException
 
 
 class retry_on_error(object):
-    def __init__(self, max_retries=5, delay=0.1, backoff=2,
+    def __init__(self, max_retries=3, delay=0.15, backoff=2,
                  retry_api_error=True, logger=None):
         self.max_retries = max_retries
         self.delay = delay
