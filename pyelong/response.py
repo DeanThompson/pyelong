@@ -4,7 +4,7 @@ import logging
 
 import tornado.escape
 
-_logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Response(object):
@@ -70,13 +70,13 @@ class Response(object):
 
     def _log_request(self):
         if self.ok:
-            _logger.info('pyelong request: %s', self.url)
-            _logger.info('pyelong result: %s', self.result)
+            logger.info('pyelong request: %s', self.url)
+            logger.info('pyelong result: %s', self.result)
         else:
-            _logger.error('pyelong request error, url: %s, code: %s, error: %s',
+            logger.error('pyelong request error, url: %s, code: %s, error: %s',
                           self.url, self.code, self.error)
 
-        _logger.info('pyelong elapsed: %s ms', self.request_time)
+        logger.info('pyelong elapsed: %s ms', self.request_time)
 
     def to_json(self):
         return {

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from pyelong.api.base import ApiBase
-from pyelong.api.hotel.order import Order
-from pyelong.api.hotel.data import Data
-from pyelong.api.hotel.incr import Incr
+from ..base import ApiBase
+from .order import Order
+from .data import Data
+from .incr import Incr
 
 __all__ = 'Hotel'
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from pyelong.api.base import ApiBase
-from pyelong.api.common.creditcard import CreditCard
+from ..base import ApiBase
+from .creditcard import CreditCard
 
 __all__ = 'Common'
 

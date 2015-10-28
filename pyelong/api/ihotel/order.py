@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pyelong.api.base import ApiBase
+from ..base import ApiBase
 
 
 class Order(ApiBase):

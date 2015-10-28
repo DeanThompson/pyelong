@@ -5,7 +5,7 @@ __author__ = 'leon'
 import time
 import logging
 
-from pyelong.exceptions import RetryableAPIError, RetryableException
+from ..exceptions import RetryableAPIError, RetryableException
 
 
 class retry_on_error(object):

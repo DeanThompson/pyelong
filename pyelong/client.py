@@ -2,11 +2,11 @@
 
 import time
 
-from pyelong.request import SyncRequest, AsyncRequest
-from pyelong.api.hotel import Hotel
-from pyelong.api.ihotel import Ihotel
-from pyelong.api.common import Common
-from pyelong.util import des_encrypt, retry
+from .request import SyncRequest, AsyncRequest
+from .api.hotel import Hotel
+from .api.ihotel import Ihotel
+from .api.common import Common
+from .util import des_encrypt, retry
 
 
 class Client(object):

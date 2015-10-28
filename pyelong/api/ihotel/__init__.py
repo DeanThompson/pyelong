@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from pyelong.api.base import ApiBase
-from pyelong.api.ihotel.order import Order
-from pyelong.api.ihotel.detail import Detail
+from ..base import ApiBase
+from .order import Order
+from .detail import Detail
 
 __all__ = 'Ihotel'
 
