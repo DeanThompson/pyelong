@@ -3,6 +3,7 @@
 from ..base import ApiBase
 from .order import Order
 from .detail import Detail
+from .lowest import Lowest
 
 __all__ = 'Ihotel'
 
@@ -18,6 +19,10 @@ class Ihotel(ApiBase):
             - http://open.elong.com/wiki/Ihotel.list
         """
         return self._request('list', raw=True, **kwargs)
+
+    @property
+    def lowest(self):
+        return Lowest(self._client)
 
     @property
     def detail(self):

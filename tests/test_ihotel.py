@@ -56,3 +56,15 @@ client.ihotel.detail(**detail_args)
 client.ihotel.detail(**detail_auto_detect_args)
 
 client.ihotel.detail.avail(**detail_avail_args)
+
+price_args = {
+    'checkInDate': ci_date,
+    'checkOutDate': co_date,
+    'iHotelIds': [331690, 324763, 324748],
+    'roomGroup': [
+        {'numberOfAdults': 2, 'childAges': None}
+    ],
+    'options': '1'
+}
+
+client.ihotel.lowest.price(**price_args)
