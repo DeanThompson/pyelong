@@ -14,6 +14,7 @@ pyelong
 - 支持同步（requests）和 Tornado 异步（AsyncHTTPClient, coroutine）
 - 有信用卡加密方法
 - requests 请求支持简单的基于 HTTP 状态码和 API 错误码的重试
+- 支持使用代理
 
 ## 不支持
 
@@ -122,7 +123,9 @@ if __name__ == '__main__':
     ioloop.IOLoop().instance().start()
 ```
 
-更多信息见：[examples/async.py](examples/async.py)
+## 注意
+
+由于个人使用原因，主要维护更新国际酒店的接口，其他功能未在生产环境中得到验证。
 
 ## LICENSE
 

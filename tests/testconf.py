@@ -10,7 +10,8 @@ import logging
 from pyelong import Client
 from api_settings import ELONG_API_SETTINGS
 
-logging.basicConfig(level=logging.DEBUG)
+logfmt = '%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+logging.basicConfig(level=logging.INFO, format=logfmt)
 
 client = Client(**ELONG_API_SETTINGS)
 

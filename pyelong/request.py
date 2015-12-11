@@ -85,6 +85,9 @@ class SyncRequest(Request):
     def session(self):
         if not hasattr(self, '_session') or not self._session:
             self._session = requests.Session()
+            if self.client.proxy_host and self.client.proxy_port:
+                p = '%s:%s' % (self.client.proxy_host, self.client.proxy_port)
+                self._session.proxies = {'http': p, 'https': p}
         return self._session
 
     @retry_on_error(retry_api_error=True, logger=logger)
@@ -97,15 +100,15 @@ class SyncRequest(Request):
                                       cert=self.client.cert)
         except (ConnectionError, Timeout) as e:
             logger.exception('pyelong catches ConnectionError or Timeout, '
-                              'url: %s, params: %s', url, params)
+                             'url: %s, params: %s', url, params)
             raise RetryableException('ConnectionError or Timeout: %s' % e)
         except RequestException as e:
             logger.exception('pyelong catches RequestException, url: %s,'
-                              ' params: %s', url, params)
+                             ' params: %s', url, params)
             raise ElongException('RequestException: %s' % e)
         except Exception as e:
             logger.exception('pyelong catches unknown exception, url: %s, '
-                              'params: %s', url, params)
+                             'params: %s', url, params)
             raise ElongException('unknown exception: %s' % e)
 
         resp = RequestsResponse(result)
@@ -114,6 +117,18 @@ class SyncRequest(Request):
 
 
 class AsyncRequest(Request):
+    @property
+    def proxy_config(self):
+        if not getattr(self, '_proxy_config', None):
+            if self.client.proxy_host and self.client.proxy_port:
+                self._proxy_config = {
+                    'proxy_host': self.client.proxy_host,
+                    'proxy_port': self.client.proxy_port
+                }
+            else:
+                self._proxy_config = {}
+        return self._proxy_config
+
     @staticmethod
     def _encode_params(data):
         """
@@ -143,7 +158,8 @@ class AsyncRequest(Request):
         # use the default SimpleAsyncHTTPClient
         resp = yield AsyncHTTPClient().fetch(self._prepare_url(url, params),
                                              validate_cert=self.verify_ssl,
-                                             ca_certs=self.client.cert)
+                                             ca_certs=self.client.cert,
+                                             **self.proxy_config)
         resp = TornadoResponse(resp)
         self.timing(api, resp.request_time)
         raise gen.Return(self.check_response(resp))
