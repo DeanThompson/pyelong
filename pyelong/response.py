@@ -38,7 +38,7 @@ class Response(object):
         else:
             # 请求出现异常
             self.code = str(self.status_code)
-            self.reason = self._resp.reason
+            self.error = self._resp.reason
             self.result = None
 
         self._log_request()
