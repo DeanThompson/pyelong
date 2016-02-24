@@ -73,8 +73,8 @@ class Response(object):
             logger.info('pyelong request: %s', self.url)
             logger.info('pyelong result: %s', self.result)
         else:
-            logger.error('pyelong request error, url: %s, code: %s, error: %s',
-                          self.url, self.code, self.error)
+            logger.warn('pyelong request error, url: %s, code: %s, error: %s',
+                        self.url, self.code, self.error)
 
         logger.info('pyelong elapsed: %s ms', self.request_time)
 

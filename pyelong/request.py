@@ -68,7 +68,7 @@ class Request(object):
 
     def check_response(self, resp):
         if not resp.ok and self.client.raise_api_error:
-            logger.error('pyelong calling api failed, url: %s', resp.url)
+            # logger.error('pyelong calling api failed, url: %s', resp.url)
             if is_retryable(resp.code):
                 raise RetryableAPIError(resp.code, resp.error)
             raise ElongAPIError(resp.code, resp.error)
@@ -90,7 +90,7 @@ class SyncRequest(Request):
                 self._session.proxies = {'http': p, 'https': p}
         return self._session
 
-    @retry_on_error(retry_api_error=True, logger=logger)
+    @retry_on_error(retry_api_error=True)
     def do(self, api, params, https, raw=False):
         url, params = self.prepare(api, params, https, raw)
         try:

@@ -7,24 +7,22 @@ import logging
 
 from ..exceptions import RetryableAPIError, RetryableException
 
+logger = logging.getLogger(__name__)
+
 
 class retry_on_error(object):
     def __init__(self, max_retries=3, delay=0.15, backoff=2,
-                 retry_api_error=True, logger=None):
+                 retry_api_error=True):
         self.max_retries = max_retries
         self.delay = delay
         self.backoff = backoff
         self.retry_api_error = retry_api_error
 
-        if logger is None:
-            logger = logging.getLogger(__name__)
-        self.logger = logger
-
     def is_server_error(self, resp):
         return 500 <= resp.status_code <= 599
 
     def _sleep(self, tries, delay):
-        self.logger.warn('retry [%d], delay: %s ms', tries, delay * 1000)
+        logger.warn('retry [%d], delay: %s ms', tries, delay * 1000)
         time.sleep(delay)
         return delay * self.backoff
 
